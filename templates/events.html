@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Calendar</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:400,300,700" rel="stylesheet" type="text/css">
+</head>
+<body>
+<style>
+
+    body {
+        font-family: 'Roboto Condensed', sans-serif;
+        background-color: #f2f2f2;
+        margin: 0;
+        padding: 0;
+    }
+
+    header {
+        background-color: #333;
+        color: #fff;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    header time {
+        font-size: 24px;
+    }
+
+    header a {
+        color: #fff;
+        text-decoration: none;
+        font-weight: bold;
+        border: 1px solid #fff;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    section {
+        max-width: 400px;
+        margin: 20px auto;
+        background-color: #fff;
+        border: 1px solid #ccc;
+    }
+
+    .m-box--weeks {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-weight: bold;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .m-box--weeks li {
+        flex: 1;
+        text-align: center;
+        padding: 10px 0;
+    }
+
+    .m-box--date {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .m-box--date li {
+        flex: 1;
+        text-align: center;
+        padding: 20px 0;
+        position: relative;
+        cursor: pointer;
+    }
+
+
+    .m-bullet--event {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 6px;
+        height: 6px;
+        background-color: #f00;
+        border-radius: 50%;
+    }
+
+    .l-date--passed {
+        color: #999;
+    }
+
+    .event-date {
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #555;
+    }
+
+    .event-day {
+        font-size: 18px;
+        margin-bottom: 5px;
+        color: #333;
+    }
+
+    .event-start {
+        font-size: 14px;
+        margin-bottom: 5px;
+        color: #777;
+    }
+
+    .event-summary {
+        margin-bottom: 10px;
+    }
+
+    .m-box--date li.active {
+        background-color: #ffdd80;
+    }
+
+    .no-events {
+        font-style: italic;
+        text-align: center;
+        color: #888;
+    }
+
+    event-info-container {
+        margin-bottom: 15px;
+        margin-top: 15px;
+    }
+
+    .arrow-container {
+        background-color: #333;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+    }
+
+
+    .arrow-button {
+        font-size: 24px;
+        background-color: transparent;
+        border: none;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .arrow-button:hover {
+        background-color: #ccc;
+    }
+
+    .month {
+        color: white;
+    }
+
+    .current-date {
+        margin-top: 20px;
+        font-size: 14px;
+        text-align: center;
+        color: #999;
+    }
+</style>
+<header role="banner">
+</header>
+
+<section role="main">
+    <div class="arrow-container">
+        <button id="prev-month-button" class="arrow-button left-arrow">&#8592;</button>
+        <p class="month" id="current-month-label"></p>
+        <button id="next-month-button" class="arrow-button right-arrow">&#8594;</button>
+    </div>
+
+
+    <ul class="m-box--weeks">
+        <li>Вс</li>
+        <li>Пн</li>
+        <li>Вт</li>
+        <li>Ср</li>
+        <li>Чт</li>
+        <li>Пт</li>
+        <li>Сб</li>
+    </ul>
+    <ul class="m-box--date">
+        <li class="l-date--passed">28</li>
+        <li class="l-date--passed">29</li>
+        <li class="l-date--passed">30</li>
+        <li class="l-date--passed">31</li>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+    </ul>
+    <ul class="m-box--date">
+        <li>4</li>
+        <li>5</li>
+        <li>6</li>
+        <li class="l-date--event" data-event="15:00 - New Haircut">
+            <i class="m-bullet--event"></i>
+            7
+        </li>
+        <li>8</li>
+        <li>9</li>
+        <li>10</li>
+    </ul>
+    <ul class="m-box--date">
+        <li>11</li>
+        <li>12</li>
+        <li>13</li>
+        <li>14</li>
+        <li>15</li>
+        <li>16</li>
+        <li>17</li>
+    </ul>
+    <ul class="m-box--date">
+        <li>18</li>
+        <li>19</li>
+        <li>20</li>
+        <li>21</li>
+        <li>22</li>
+        <li>23</li>
+        <li>24</li>
+    </ul>
+    <ul class="m-box--date">
+        <li>25</li>
+        <li>26</li>
+        <li>27</li>
+        <li>28</li>
+        <li>29</li>
+        <li>30</li>
+        <li>31</li>
+    </ul>
+    <div id="event-info-container"></div>
+    <h1>Upcoming Events</h1>
+    {% if events %}
+        {% for event in events %}
+            <div class="event-date">
+                <span class="event-day">{{ event.date|date:"d" }}</span>
+                {{ event.date }}
+            </div>
+            {% for subevent in event.events %}
+                {% if subevent.start|date:"d" == event.date|date:"d" %}
+                    <div class="event-start">{{ subevent.start|date:"Y-m-d H:i:s" }}</div>
+                    <div class="event-summary">{{ subevent.summary }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    {% else %}
+        <p class="no-events">No upcoming events found.</p>
+    {% endif %}
+</section>
+
+
+<script>
+    // Retrieve all calendar dates
+    const calendarDates = document.querySelectorAll('.m-box--date li');
+
+    // Attach click event listener to each calendar date
+    calendarDates.forEach(date => {
+        date.addEventListener('click', () => {
+            // Remove active class from all dates
+            calendarDates.forEach(date => {
+                date.classList.remove('active');
+            });
+
+            // Add active class to the clicked date
+            date.classList.add('active');
+
+            const eventData = date.getAttribute('data-event');
+            const eventInfoContainer = document.getElementById('event-info-container');
+
+            // Remove any existing event information
+            eventInfoContainer.innerHTML = '';
+
+            if (eventData) {
+                const [time, description] = eventData.split(' - ');
+
+                // Create a div element to display the event information
+                const eventInfoDiv = document.createElement('div');
+                eventInfoDiv.classList.add('event-info');
+                eventInfoDiv.innerHTML = `<div class="event-info-time">${time}</div><div class="event-info-description">${description}</div>`;
+
+                // Append the event information div to the container
+                eventInfoContainer.appendChild(eventInfoDiv);
+            } else {
+                const noEventsDiv = document.createElement('div');
+                noEventsDiv.textContent = 'No events scheduled for this day.';
+                eventInfoContainer.appendChild(noEventsDiv);
+            }
+        });
+    });
+
+    // Get the current month and year
+    let currentDate = new Date();
+    let currentYear = currentDate.getFullYear();
+    let currentMonth = currentDate.getMonth();
+
+    // Set the current month label
+    const currentMonthLabel = document.getElementById('current-month-label');
+    currentMonthLabel.textContent = new Date(currentYear, currentMonth).toLocaleString('default', {
+        month: 'long',
+        year: 'numeric'
+    });
+
+    // Attach click event listener to previous month button
+    const prevMonthButton = document.getElementById('prev-month-button');
+    prevMonthButton.addEventListener('click', () => {
+        currentMonth = getUpdatedMonth(currentYear, currentMonth, 'previous');
+        currentMonthLabel.textContent = new Date(currentYear, currentMonth).toLocaleString('default', {
+            month: 'long',
+            year: 'numeric'
+        });
+    });
+
+    // Attach click event listener to next month button
+    const nextMonthButton = document.getElementById('next-month-button');
+    nextMonthButton.addEventListener('click', () => {
+        currentMonth = getUpdatedMonth(currentYear, currentMonth, 'next');
+        currentMonthLabel.textContent = new Date(currentYear, currentMonth).toLocaleString('default', {
+            month: 'long',
+            year: 'numeric'
+        });
+    });
+
+    // Function to update the month and return the updated month index
+    function getUpdatedMonth(year, month, direction) {
+        if (direction === 'previous') {
+            if (month === 0) {
+                year -= 1;
+                month = 11;
+            } else {
+                month -= 1;
+            }
+        } else if (direction === 'next') {
+            if (month === 11) {
+                year += 1;
+                month = 0;
+            } else {
+                month += 1;
+            }
+        }
+
+        // Limit the month range from the first to the twelfth month
+        year = Math.max(currentYear - 1, Math.min(currentYear + 1, year));
+        month = Math.max(0, Math.min(11, month));
+
+        return month ;
+    }
+
+
+</script>
+
+
+</body>
+</html>
